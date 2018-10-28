@@ -1,0 +1,103 @@
+decided to use windows 10 VM as mac support seems a bit rough.
+
+follow the pdf
+
+changes noted belowl
+
+oculus unity integration has changed. 
+in unity you have to create a project, 
+Then in the brower, unity asset store click open in unity. 
+unity opens te same browser window and this time shows download, click it. Import , click it.
+
+==========================
+andriod SDK location
+C:\Users\simon\AppData\Local\Android\Sdk
+
+jdk location
+C:\Program Files\Android\Android Studio\jre
+
+ndk
+C:\Users\simon\AppData\Local\Android\Sdk\ndk-bundle
+
+JDK Tools
+C:\Program Files\Android\Android Studio\jre\bin
+
+==========================
+
+copied the old tools to the desktop.
+
+adb devices 
+#shows not found
+added this to the PATH environment variables (search tool)
+C:\Users\simon\AppData\Local\Android\Sdk\platform-tools
+
+adb devices 
+# shows unauthorised
+in the oculus , pop up , authorize.
+
+======================
+installing into the oculus.
+
+connect it, click to attach usb to wondows
+
+adb devices 
+#should show connected
+#if not check the dispay and confirm 
+# note if it fails then use vmware and reattach the usb, make sure to set the action to open folder, seems to work
+
+#cmd window
+adb install C:\Users\simon\Documents\Test1\Test1-1.apk
+
+#You should now see the app get transferred to your Oculus Go.
+
+to uninstall the app in oculus
+==============================
+
+adb shell pm list packages
+adb uninstall com.SimonGreen.Test1
+
+
+
+
+ 
+
+
+
+======================
+build error 1)
+google .pom file download fails due to cert.
+
+to get the cert, on mac point the browser to https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/3.0.1/
+reboot worked, this error has cleared.
+
+open the java tools in start, config, add the dl.google.com cert to java
+
+reboot
+=======================
+build error 2)
+
+CommandInvokationFailure: Gradle build failed. 
+C:\Program Files\Android\Android Studio\jre\bin\java.exe -classpath "C:\Program Files\Unity\Editor\Data\PlaybackEngines\AndroidPlayer\Tools\gradle\lib\gradle-launcher-4.2.1.jar" org.gradle.launcher.GradleMain "-Dorg.gradle.jvmargs=-Xmx2048m" "assembleRelease"
+
+stderr[
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring root project 'gradleOut'.
+> No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
+
+fix is here.
+https://github.com/google/filament/issues/15
+
+mac
+mkdir -p $ANDROID_HOME/ndk-bundle/toolchains/mips64el-linux-android/prebuilt/linux-x86_64
+
+windows
+mkdir %ANDROID_HOME%\ndk-bundle\toolchains\mips64el-linux-android\prebuilt\linux-x86_64
+
+
+ 

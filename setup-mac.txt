@@ -1,0 +1,151 @@
+Android Studio Setup on my MAC
+------------------------------
+
+project Test1
+==============
+
+Link:
+https://medium.com/inborn-experience/how-to-build-an-app-for-the-oculus-go-from-start-to-finish-with-unity-cb72d931ddae
+
+Android SDK Location
+/Users/sgreen/Library/Android/sdk
+
+JDK Location
+/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home
+
+NDK Location
+/Users/sgreen/Library/Android/sdk/ndk-bundle
+
+setup Environments.sh for the variables, you wil lneed to source this 
+
+***skipped this as its replacing what I have with windows.
+Delete android sdk “tools” folder : [Your Android SDK root]/tools -> tools
+ Download SDK Tools: http://dl- ssl.google.com/android/repository/tools_r25.2.5-windows.zip
+Extract that to Android SDK root
+
+how to build
+============
+
+1) connect the oculus
+
+2) in a terminal
+adb devices
+#check you can see the oculus
+
+3) in unity
+
+
+======================
+installing adb for mac
+======================
+
+brew install android-platform-tools
+
+
+==================================
+installing an app into the oculus.
+==================================
+
+connect it, click to attach usb to wondows
+
+adb devices
+#should show connected
+#if not check the dispay and confirm
+# note if it fails then use vmware and reattach the usb, make sure to set the action to open folder, seems to work
+
+#cmd window
+adb install ~/Test1/Test1.apk
+
+#You should now see the app get transferred to your Oculus Go.
+
+==================================
+How to uninstall the app in oculus
+==================================
+
+adb shell pm list packages
+adb uninstall com.SimonGreen.Test1
+adb uninstall com.ToucanTree.Test1
+
+=================================
+project Test2: Unity SampleScenes
+=================================
+this is for Rift, Touch, and Gear VR support, so I suspect i'm installing the wrong project initially.
+
+I added this on top of the project above, not sire if thats a good idea yet.
+
+installed from unity assets: Unity Sample Framework 
+
+Then selected: SampleScenes: MixedRealityCapture:MRCTest 
+
+in build settings I select add open scenes. 
+
+build failed: The type or namespace name `OvrAvatar' could not be found. Are you missing an assembly reference?
+
+google tells me I need to add this asset: Oculus Integration added it.
+
+added and the build gets firther now. 
+
+==================
+build errors Test1
+==================
+
+1) 
+Could not resolve all files for configuration ':classpath'.
+   > Could not resolve com.android.tools.build:gradle:3.0.1.
+     Required by:
+         project :
+      > Could not resolve com.android.tools.build:gradle:3.0.1.
+         > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/3.0.1/gradle-3.0.1.pom'.
+            > Could not GET 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/3.0.1/gradle-3.0.1.pom'.
+               > sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+
+point the browser to https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/3.0.1/
+get the cert details, its dl.google.com
+
+this is my path to the certs
+/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/jre/lib/security
+
+source Environment.sh
+keytool -list -keystore "/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/jre/lib/security/cacerts"
+password: changeit
+
+check for the dl.google.com certificate, its missing. 
+
+in chrome you can simply drag the dl.google.com.cer file to downloads. Then to install it..
+
+keytool -import -noprompt -trustcacerts -alias dl.google.com.cer -file /Users/sgreen/Downloads/dl.google.com.cer -keystore "/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/jre/lib/security/cacerts" -storepass changeit
+
+still failed (possibly needs a reboot)
+reboot worked, this error has cleared.
+
+
+2)
+CommandInvokationFailure: Gradle build failed. 
+/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/bin/java -classpath "/Applications/Unity/PlaybackEngines/AndroidPlayer/Tools/gradle/lib/gradle-launcher-4.2.1.jar" org.gradle.launcher.GradleMain "-Dorg.gradle.jvmargs=-Xmx2048m" "assembleRelease"
+
+stderr[
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring root project 'gradleOut'.
+> No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 41s
+
+
+fix is here.
+https://github.com/google/filament/issues/15
+
+mac
+mkdir -p $ANDROID_HOME/ndk-bundle/toolchains/mips64el-linux-android/prebuilt/linux-x86_64
+
+windows
+mkdir %ANDROID_HOME%\ndk-bundle\toolchains\mips64el-linux-android\prebuilt\linux-x86_64
+
+
